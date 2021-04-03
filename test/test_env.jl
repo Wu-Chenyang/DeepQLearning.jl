@@ -15,8 +15,8 @@ mutable struct TestMDP <: MDP{Tuple{Vector{Int32}, Int32}, Int64}
     bad_state::Array{Int32}
     normal_state::Array{Int32}
     good_state::Array{Int32}
-    _observation_space::Array{Array{Float32}}
-    _rewards::Array{Float32}
+    _observation_space::Array{Vector{Float32}}
+    _rewards::Vector{Float32}
     discount_factor::Float32
 end
 

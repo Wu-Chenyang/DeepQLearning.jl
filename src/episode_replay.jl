@@ -24,17 +24,16 @@ function EpisodeReplayBuffer(env::AbstractEnv,
                         trace_length::Int64,
                         rng::AbstractRNG = MersenneTwister(0))
     
-    s_dim = obs_dimensions(env)
-    O = typeof(observe(env))
+    s_dim = reduce(*, obs_dimensions(env)) + reduce(*, size(convert_a(Vector{Float64}, first(actions(env)), env.m)))
     Q = length(s_dim)
-    experience = Vector{Vector{DQExperience{Int32, Float32, O}}}(undef, max_size)
+    experience = Vector{Vector{DQExperience{Int32, Float32, Vector{Float32}}}}(undef, max_size)
     _s_batch = [zeros(Float32, s_dim..., batch_size) for i=1:trace_length]
     _a_batch = [[CartesianIndex(1,1) for i=1:batch_size] for i=1:trace_length]
     _r_batch = [zeros(Float32, batch_size) for i=1:trace_length]
     _sp_batch = [zeros(Float32, s_dim..., batch_size) for i=1:trace_length]
     _done_batch = [zeros(Float32, batch_size) for i=1:trace_length]
     _trace_mask = [zeros(Int32, batch_size) for i=1:trace_length]
-    _episode = Vector{DQExperience{Int32, Float32, O}}()
+    _episode = Vector{DQExperience{Int32, Float32, Vector{Float32}}}()
     return EpisodeReplayBuffer(max_size, batch_size, trace_length, rng, 0, 1, experience,
                 _s_batch, _a_batch, _r_batch, _sp_batch, _done_batch, _trace_mask, _episode)
 end
@@ -112,18 +111,19 @@ function generate_episode(env::AbstractEnv, action_indices; max_steps::Int64 = 1
     sizehint!(episode, max_steps)
     # start simulation
     reset!(env)
-    o = observe(env)
+    ao = vcat(zeros(Float32, size((convert_a(Vector{Float32}, first(actions(env)), env.m)))), (observe(env)))
     done = false
     step = 1
     while !done && step < max_steps
         action = rand(actions(env))
         ai = action_indices[action]
         rew = act!(env, action)
-        op = observe(env)
+        o = observe(env)
+        aop = vcat((convert_a(Vector{Float32}, action, env.m)), (o))
         done = terminated(env)
-        exp = DQExperience(o, ai, Float32(rew), op, done)
+        exp = DQExperience(ao, ai, Float32(rew), aop, done)
         push!(episode, exp)
-        o = op
+        ao = aop
         step += 1
     end
     return episode

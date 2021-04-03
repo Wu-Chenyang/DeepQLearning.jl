@@ -14,8 +14,7 @@ using TensorBoardLogger: TBLogger, log_value
 using EllipsisNotation
 
 using CommonRLInterface: AbstractEnv, reset!, actions, observe, act!, terminated
-import POMDPs
-using POMDPs: MDP, POMDP, Policy, Solver, solve, action
+using POMDPs
 
 export DeepQLearningSolver,
        AbstractNNPolicy,

@@ -20,16 +20,20 @@ function basic_evaluation(policy::AbstractNNPolicy, env::AbstractEnv, n_eval::In
     for i=1:n_eval
         done = false 
         r_tot = 0.0
+        disc = 1.0
         step = 0
         reset!(env)
         obs = observe(env)
+        ao = vcat(zeros(Float32, size((convert_a(Vector{Float32}, first(actions(env)), env.m)))), (obs))
         resetstate!(policy)
         while !done && step <= max_episode_length
-            act = action(policy, obs)
+            act = action(policy, ao)
             rew = act!(env, act)
             obs = observe(env)
             done = terminated(env)
-            r_tot += rew 
+            ao = vcat((convert_a(Vector{Float32}, act, env.m)), (obs))
+            r_tot += disc * rew
+            disc *= discount(env.m)
             step += 1
         end
         avg_steps += step

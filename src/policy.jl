@@ -64,13 +64,13 @@ function _value(policy::NNPolicy{P}, o::AbstractArray{T,N}) where {P,T<:Real,N}
 end
 
 POMDPs.action(policy::NNPolicy, o) = _action(policy, o)
-POMDPs.action(policy::NNPolicy{P}, s) where {P <: MDP} = _action(policy, POMDPs.convert_s(Array{Float32}, s, policy.problem))
-POMDPs.action(policy::NNPolicy{P}, o) where {P <: POMDP} = _action(policy, POMDPs.convert_o(Array{Float32}, o, policy.problem))
+POMDPs.action(policy::NNPolicy{P}, s) where {P <: MDP} = _action(policy, POMDPs.convert_s(Vector{Float32}, s, policy.problem))
+POMDPs.action(policy::NNPolicy{P}, a, o) where {P <: POMDP} = _action(policy, vcat(vec(POMDPs.convert_a(Vector{Float32}, a, policy.problem)), vec(POMDPs.convert_o(Vector{Float32}, o, policy.problem))))
 
 POMDPPolicies.actionvalues(policy::NNPolicy, o) = _actionvalues(policy, o)
-POMDPPolicies.actionvalues(policy::NNPolicy{P}, s) where {P<:MDP} = _actionvalues(policy, POMDPs.convert_s(Array{Float32}, s, policy.problem))
-POMDPPolicies.actionvalues(policy::NNPolicy{P}, o) where {P<:POMDP} = _actionvalues(policy, POMDPs.convert_o(Array{Float32}, o, policy.problem))
+POMDPPolicies.actionvalues(policy::NNPolicy{P}, s) where {P<:MDP} = _actionvalues(policy, POMDPs.convert_s(Vector{Float32}, s, policy.problem))
+POMDPPolicies.actionvalues(policy::NNPolicy{P}, a, o) where {P<:POMDP} = _actionvalues(policy, vcat(vec(POMDPs.convert_a(Vector{Float32}, a, policy.problem)), vec(POMDPs.convert_o(Vector{Float32}, o, policy.problem))))
 
 POMDPs.value(policy::NNPolicy, o) = _value(policy, o)
-POMDPs.value(policy::NNPolicy{P}, s) where {P <: MDP} = _value(policy, POMDPs.convert_s(Array{Float32}, s, policy.problem))
-POMDPs.value(policy::NNPolicy{P}, o) where {P <: POMDP} = _value(policy, POMDPs.convert_o(Array{Float32}, o, policy.problem))
+POMDPs.value(policy::NNPolicy{P}, s) where {P <: MDP} = _value(policy, POMDPs.convert_s(Vector{Float32}, s, policy.problem))
+POMDPs.value(policy::NNPolicy{P}, a, o) where {P <: POMDP} = _value(policy, vcat(vec(POMDPs.convert_a(Vector{Float32}, a, policy.problem)), vec(POMDPs.convert_o(Vector{Float32}, o, policy.problem))))
